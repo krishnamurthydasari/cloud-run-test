@@ -22,4 +22,3 @@ images:
     - --delivery-pipeline=hello-pipeline
     - --region=us-east1   # ✅ IMPORTANT
     - --images=hello-image=us-east1-docker.pkg.dev/shadowcoo/cloud-run-repo/hello:$SHORT_SHA
-``
