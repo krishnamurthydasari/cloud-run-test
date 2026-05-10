@@ -1,1 +1,1 @@
-print("Hello, Cloud Build!")
+print("Hello, This is Cloud Build Test!")
