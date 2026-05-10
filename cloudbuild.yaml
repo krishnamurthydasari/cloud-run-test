@@ -1,4 +1,25 @@
 steps:
-- name: 'python:3.10'
-  entrypoint: 'python'
-  args: ['main.py']
+
+# ✅ Build image
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    - build
+    - -t
+    - us-east1-docker.pkg.dev/shadowcoo/cloud-run-repo/hello:$SHORT_SHA
+    - .
+
+images:
+- us-east1-docker.pkg.dev/shadowcoo/cloud-run-repo/hello:$SHORT_SHA
+
+# ✅ Create Cloud Deploy release
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+    - deploy
+    - releases
+    - create
+    - release-$SHORT_SHA
+    - --delivery-pipeline=hello-pipeline
+    - --region=us-east1   # ✅ IMPORTANT
+    - --images=hello-image=us-east1-docker.pkg.dev/shadowcoo/cloud-run-repo/hello:$SHORT_SHA
+``
