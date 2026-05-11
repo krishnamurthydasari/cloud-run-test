@@ -1,29 +1,55 @@
-apiVersion: skaffold/v4beta6
-kind: Config
+# ---------------------------------------------
+# Skaffold Configuration (Deployment Engine)
+# ---------------------------------------------
+apiVersion: skaffold/v4beta6        # Skaffold API version (used by Cloud Deploy internally)
+kind: Config                        # Defines a Skaffold configuration
+
 metadata:
-  name: my-app
+  name: my-app                      # Logical application name
+                                    # This must match the placeholder used in:
+                                    # service.yaml → image: my-app
 
-# MUST specify deploy section for Cloud Run
+# ---------------------------------------------
+# Deployment Type Definition
+# ---------------------------------------------
+# REQUIRED when using Cloud Run with Cloud Deploy
 deploy:
-  cloudrun: {}
+  cloudrun: {}                      # Tells Skaffold to deploy to Cloud Run
+                                    # Without this, Skaffold defaults to Kubernetes (GKE),
+                                    # which will cause deployment failures
 
+# ---------------------------------------------
+# Default Manifest Configuration
+# ---------------------------------------------
 manifests:
   rawYaml:
-    - service-dev.yaml   # default (dev)
+    - service-dev.yaml              # Default manifest used if no profile is selected
+                                    # Typically corresponds to dev environment
 
 # ---------------------------------------------
-# Profiles for different environments
+# Profiles for Different Environments
 # ---------------------------------------------
+# Profiles allow environment-specific deployment configurations
+# Cloud Deploy automatically maps:
+# targetId (dev/prod) → profile name (dev/prod)
 profiles:
 
-# Dev profile
-- name: dev
+# ---------------------------------------------
+# Dev Environment Profile
+# ---------------------------------------------
+- name: dev                         # Profile name must match targetId in clouddeploy.yaml
   manifests:
     rawYaml:
-      - service-dev.yaml
+      - service-dev.yaml            # Uses dev-specific Cloud Run service definition
+                                    # This deploys to:
+                                    # Cloud Run service → my-service-dev
 
-# Prod profile
-- name: prod
+# ---------------------------------------------
+# Prod Environment Profile
+# ---------------------------------------------
+- name: prod                        # Profile name matches 'prod' target
   manifests:
     rawYaml:
-      - service-prod.yaml
+      - service-prod.yaml           # Uses prod-specific service definition
+                                    # This deploys to:
+                                    # Cloud Run service → my-service-prod
