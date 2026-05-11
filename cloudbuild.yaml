@@ -57,7 +57,7 @@ steps:
       - '--images=my-app=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
     
 # ---------------------------------------------
-# Options
+# Logging Options
 # ---------------------------------------------
 options:
   logging: CLOUD_LOGGING_ONLY   # Send logs only to Cloud Logging (not GCS)
