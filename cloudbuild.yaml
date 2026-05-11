@@ -1,10 +1,6 @@
 steps:
-# - name: 'gcr.io/cloud-builders/docker'
-#   args:
-#     - build
-#     - -t
-#     - us-east1-docker.pkg.dev/shadowcoo/cloud-run-repo/hello:$SHORT_SHA
-#     - .
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image', '.']
 
 # images:
 # - us-east1-docker.pkg.dev/shadowcoo/cloud-run-repo/hello:$SHORT_SHA
