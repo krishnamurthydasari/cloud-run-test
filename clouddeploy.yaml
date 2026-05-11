@@ -16,7 +16,7 @@ metadata:
   name: dev
 description: Dev environment
 run:
-  location: projects/${PROJECT_ID}/locations/us-east1
+  location: projects/shadowcoo/locations/us-east1
 
 ---
 apiVersion: deploy.cloud.google.com/v1
@@ -30,4 +30,4 @@ description: Prod environment
 requireApproval: true
 
 run:
-  location: projects/${PROJECT_ID}/locations/us-east1
+  location: projects/shadowcoo/locations/us-east1
