@@ -67,8 +67,7 @@ Key Concept:
   
   Cloud Build →
      create release →
-        Cloud Deploy →
-  
+        Cloud Deploy →  
            → Target: dev
                       ↓
                  Skaffold uses profile: dev
