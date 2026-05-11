@@ -37,24 +37,24 @@ steps:
 # ---------------------------------------------
 # Step 3: Create Release in Cloud Deploy
 # ---------------------------------------------
-- name: gcr.io/google.com/cloudsdktool/cloud-sdk  # Use container with gcloud CLI installed
-  entrypoint: gcloud                             # Run gcloud command directly
-  args:
-    - deploy
-    - releases
-    - create
-    # Unique release name (based on commit SHA for traceability)
-    - release-${SHORT_SHA}
-
-    # Specify which Cloud Deploy pipeline to use
-    - '--delivery-pipeline=my-pipeline'
-
-    # Region where Cloud Deploy pipeline is defined
-    - '--region=us-east1'
-
-    # Map logical app name → actual container image
-    # 'my-app' must match the name used in skaffold.yaml / service.yaml
-    - '--images=my-app=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk  # Use container with gcloud CLI installed
+    entrypoint: gcloud                             # Run gcloud command directly
+    args:
+      - deploy
+      - releases
+      - create
+      # Unique release name (based on commit SHA for traceability)
+      - release-${SHORT_SHA}
+  
+      # Specify which Cloud Deploy pipeline to use
+      - '--delivery-pipeline=my-pipeline'
+  
+      # Region where Cloud Deploy pipeline is defined
+      - '--region=us-east1'
+  
+      # Map logical app name → actual container image
+      # 'my-app' must match the name used in skaffold.yaml / service.yaml
+      - '--images=my-app=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
     
 # ---------------------------------------------
 # Options
