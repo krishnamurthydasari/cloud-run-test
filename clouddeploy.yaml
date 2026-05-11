@@ -1,33 +1,56 @@
-apiVersion: deploy.cloud.google.com/v1
-kind: DeliveryPipeline
+# ---------------------------------------------
+# Cloud Deploy Pipeline Definition
+# ---------------------------------------------
+apiVersion: deploy.cloud.google.com/v1   # API version for Cloud Deploy resources
+kind: DeliveryPipeline                   # Defines a deployment pipeline (flow)
 metadata:
-  name: my-pipeline
-description: Sample pipeline
+  name: my-pipeline                      # Unique name of the pipeline
+description: Sample pipeline             # Description of the pipeline
 
-serialPipeline:
+# ---------------------------------------------
+# Deployment Flow (Pipeline Stages)
+# ---------------------------------------------
+serialPipeline:                          # Deploy stages sequentially (one after another)
   stages:
-    - targetId: dev
-    - targetId: prod
+    - targetId: dev                      # First deploy to 'dev' environment
+    - targetId: prod                     # Then deploy to 'prod' environment
 
 ---
-apiVersion: deploy.cloud.google.com/v1
-kind: Target
+# ---------------------------------------------
+# Target Definition: DEV Environment
+# ---------------------------------------------
+apiVersion: deploy.cloud.google.com/v1   # API version
+kind: Target                             # Defines a deployment target (environment)
 metadata:
-  name: dev
-description: Dev environment
+  name: dev                              # Target name (must match targetId above)
+description: Dev environment             # Description of the environment
+
+# ---------------------------------------------
+# Cloud Run Configuration for DEV
+# ---------------------------------------------
 run:
+  # Specifies where the application will be deployed
+  # Format: projects/<project-id>/locations/<region>
   location: projects/shadowcoo/locations/us-east1
 
 ---
+# ---------------------------------------------
+# Target Definition: PROD Environment
+# ---------------------------------------------
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
 metadata:
-  name: prod
-description: Prod environment
+  name: prod                             # Target name (must match targetId above)
+description: Prod environment            # Production environment
 
+# ---------------------------------------------
+# Approval Requirement (Prod Safety Gate)
+# ---------------------------------------------
+requireApproval: true                    # ✅ Forces manual approval before deployment to prod
 
-# ✅ Add approval requirement
-requireApproval: true
-
+# ---------------------------------------------
+# Cloud Run Configuration for PROD
+# ---------------------------------------------
 run:
+  # Same region as dev, but logically a separate environment
   location: projects/shadowcoo/locations/us-east1
