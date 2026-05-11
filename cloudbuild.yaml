@@ -9,9 +9,9 @@ steps:
       # Image name + version (SHORT_SHA = commit ID)
       - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
       - .                                # Build context (current directory)
-# ---------------------------------------------
-# Step 2: Push Docker Image to Artifact Registry
-# ---------------------------------------------
+  # ---------------------------------------------
+  # Step 2: Push Docker Image to Artifact Registry
+  # ---------------------------------------------
   - name: gcr.io/cloud-builders/docker   # Use Docker CLI provided by Cloud Build
     args:
       - push                             # Docker push command
@@ -19,9 +19,9 @@ steps:
       # <region>-docker.pkg.dev/<project-id>/<repo>/<image>:<tag>
       - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
 
-# ---------------------------------------------
-# Step 3: Create Release in Cloud Deploy
-# ---------------------------------------------
+  # ---------------------------------------------
+  # Step 3: Create Release in Cloud Deploy
+  # ---------------------------------------------
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk  # Use container with gcloud CLI installed
     entrypoint: gcloud                             # Run gcloud command directly
     args:
