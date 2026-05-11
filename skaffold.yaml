@@ -3,6 +3,10 @@ kind: Config
 metadata:
   name: my-app
 
+# MUST specify deploy section for Cloud Run
+deploy:
+  cloudrun: {}
+
 manifests:
   rawYaml:
     - service-dev.yaml   # default (dev)
@@ -12,13 +16,13 @@ manifests:
 # ---------------------------------------------
 profiles:
 
-# ✅ Dev profile
+# Dev profile
 - name: dev
   manifests:
     rawYaml:
       - service-dev.yaml
 
-# ✅ Prod profile
+# Prod profile
 - name: prod
   manifests:
     rawYaml:
