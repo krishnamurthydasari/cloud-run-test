@@ -46,7 +46,7 @@ description: Prod environment            # Production environment
 # ---------------------------------------------
 # Approval Requirement (Prod Safety Gate)
 # ---------------------------------------------
-requireApproval: true                    # ✅ Forces manual approval before deployment to prod
+requireApproval: true                    # Forces manual approval before deployment to prod
 
 # ---------------------------------------------
 # Cloud Run Configuration for PROD
