@@ -5,4 +5,21 @@ metadata:
 
 manifests:
   rawYaml:
-    - service.yaml
+    - service-dev.yaml   # default (dev)
+
+# ---------------------------------------------
+# Profiles for different environments
+# ---------------------------------------------
+profiles:
+
+# ✅ Dev profile
+- name: dev
+  manifests:
+    rawYaml:
+      - service-dev.yaml
+
+# ✅ Prod profile
+- name: prod
+  manifests:
+    rawYaml:
+      - service-prod.yaml
