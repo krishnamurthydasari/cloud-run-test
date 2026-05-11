@@ -19,28 +19,43 @@ steps:
       # <region>-docker.pkg.dev/<project-id>/<repo>/<image>:<tag>
       - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
 
-  # ---------------------------------------------
-  # Step 3: Deploy to Cloud Run
-  # ---------------------------------------------
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'  # Image with gcloud CLI
-    entrypoint: gcloud                               # Run gcloud command directly
-    args:
-      - run
-      - deploy
-      - my-service                                   # Cloud Run service name
-      # Use the image built in previous step
-      - '--image=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
-      - '--region=us-east1'                          # Deployment region
-      - '--platform=managed'                         # Fully managed Cloud Run
-      - '--allow-unauthenticated'                    # Make service publicly accessible
+  # # ---------------------------------------------
+  # # Step 3: Deploy to Cloud Run
+  # # ---------------------------------------------
+  # - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'  # Image with gcloud CLI
+  #   entrypoint: gcloud                               # Run gcloud command directly
+  #   args:
+  #     - run
+  #     - deploy
+  #     - my-service                                   # Cloud Run service name
+  #     # Use the image built in previous step
+  #     - '--image=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+  #     - '--region=us-east1'                          # Deployment region
+  #     - '--platform=managed'                         # Fully managed Cloud Run
+  #     - '--allow-unauthenticated'                    # Make service publicly accessible
 
-# # ---------------------------------------------
-# # Step 3: Push Image to Artifact Registry
-# # ---------------------------------------------
-# # Cloud Build automatically pushes images listed here
-# images:
-#   - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+# ---------------------------------------------
+# Step 3: Create Release in Cloud Deploy
+# ---------------------------------------------
+- name: gcr.io/google.com/cloudsdktool/cloud-sdk  # Use container with gcloud CLI installed
+  entrypoint: gcloud                             # Run gcloud command directly
+  args:
+    - deploy
+    - releases
+    - create
+    # Unique release name (based on commit SHA for traceability)
+    - release-${SHORT_SHA}
 
+    # Specify which Cloud Deploy pipeline to use
+    - '--delivery-pipeline=my-pipeline'
+
+    # Region where Cloud Deploy pipeline is defined
+    - '--region=us-east1'
+
+    # Map logical app name → actual container image
+    # 'my-app' must match the name used in skaffold.yaml / service.yaml
+    - '--images=my-app=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+    
 # ---------------------------------------------
 # Options
 # ---------------------------------------------
