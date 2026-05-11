@@ -9,5 +9,16 @@ steps:
 images:
   - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
 
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+    - run
+    - deploy
+    - my-service
+    - '--image=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+    - '--region=us-east1'
+    - '--platform=managed'
+    - '--allow-unauthenticated'
+
 options:
   logging: CLOUD_LOGGING_ONLY
