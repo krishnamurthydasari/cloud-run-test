@@ -1,9 +1,12 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: my-service-dev   # ✅ Dev Cloud Run service
+  name: my-service-dev   # Dev Cloud Run service
+  annotations:
+    run.googleapis.com/ingress: al
+
 spec:
   template:
     spec:
       containers:
-        - image: my-app  # ✅ Placeholder (mapped in Cloud Build)
+        - image: my-app  # Placeholder (mapped in Cloud Build)
