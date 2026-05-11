@@ -1,24 +1,39 @@
 steps:
-  - name: gcr.io/cloud-builders/docker
+  # ---------------------------------------------
+  # Step 1: Build Docker Image
+  # ---------------------------------------------
+  - name: gcr.io/cloud-builders/docker   # Use Docker builder provided by GCP
     args:
-      - build
-      - '-t'
+      - build                            # Docker build command
+      - '-t'                             # Tag the image
+      # Image name + version (SHORT_SHA = commit ID)
       - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
-      - .
+      - .                                # Build context (current directory)
 
+  # ---------------------------------------------
+  # Step 2: Deploy to Cloud Run
+  # ---------------------------------------------
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'  # Image with gcloud CLI
+    entrypoint: gcloud                               # Run gcloud command directly
+    args:
+      - run
+      - deploy
+      - my-service                                   # Cloud Run service name
+      # Use the image built in previous step
+      - '--image=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+      - '--region=us-east1'                          # Deployment region
+      - '--platform=managed'                         # Fully managed Cloud Run
+      - '--allow-unauthenticated'                    # Make service publicly accessible
+
+# ---------------------------------------------
+# Step 3: Push Image to Artifact Registry
+# ---------------------------------------------
+# Cloud Build automatically pushes images listed here
 images:
   - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
 
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: gcloud
-  args:
-    - run
-    - deploy
-    - my-service
-    - '--image=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
-    - '--region=us-east1'
-    - '--platform=managed'
-    - '--allow-unauthenticated'
-
+# ---------------------------------------------
+# Options
+# ---------------------------------------------
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: CLOUD_LOGGING_ONLY   # Send logs only to Cloud Logging (not GCS)
