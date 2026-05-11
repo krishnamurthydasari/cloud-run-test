@@ -1,9 +1,9 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: my-service-dev
+  name: my-service-dev   # ✅ Dev Cloud Run service
 spec:
   template:
     spec:
       containers:
-        - image: my-image
+        - image: my-app  # ✅ Placeholder (mapped in Cloud Build)
