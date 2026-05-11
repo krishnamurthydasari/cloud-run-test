@@ -4,28 +4,30 @@ Step 1: Enable GCP APIs
 
 Step 2: Create a trigger and connect Github repository
 
-Step 3: Cloud Build (cloudbuild.yaml)
+Step 3: Crate Docketfile
+
+Step 4: Cloud Build (cloudbuild.yaml)
 
   Builds Docker image, pushes it to Artifact Registry, and creates a release in Cloud Deploy.
 
-Step 4: Delivery Pipeline and Targets (clouddeploy.yaml)
+Step 5: Delivery Pipeline and Targets (clouddeploy.yaml)
 
   Defines deployment flow: dev → prod.
   Defines environments (dev and prod) and where deployments happen (Cloud Run region).
 
-Step 5: Apply Pipeline
+Step 6: Apply Pipeline
 
   You need to run the gcloud commnad before you push the change.
   gcloud deploy apply --file=clouddeploy.yaml --region=us-east1
   Registers pipeline and targets using gcloud deploy apply.
   This is to be run manually only once. not required for every deployment
 
-Step 6: Cloud Run Services 
+Step 7: Cloud Run Services 
 
   Initial creation of dev and prod services.
   cloud deploy needs services to be available. It will not create automatically.
 
-Step 7: Skaffold Configuration (scaffold.yaml)
+Step 8: Skaffold Configuration (scaffold.yaml)
 
   Defines deployment method (Cloud Run) and maps profiles to environments.
   Skaffold is the deployment engine used by Cloud Deploy
@@ -38,7 +40,7 @@ Step 7: Skaffold Configuration (scaffold.yaml)
   	→ Uses service-dev.yaml
   	→ Deploys to my-service-dev
 
-Step 8: Service Definitions (service.yaml)
+Step 9: Service Definitions (service.yaml)
 
   Separate YAML files for dev and prod services with placeholder image.
   This file defines the Cloud Run service, and my-app is a placeholder replaced with the real Docker image during deployment
@@ -47,15 +49,15 @@ Step 8: Service Definitions (service.yaml)
   containers
   image
 
-Step 9: Run Pipeline
+Step 10: Run Pipeline
 
   Triggered via GitHub to build, push, and create release.
 
-Step 10: Cloud Deploy Execution
+Step 11: Cloud Deploy Execution
 
   Automatically deploys to dev, waits for approval, then deploys to prod.
 
-Step 11: Promote to Prod
+Step 12: Promote to Prod
 
   Manual approval step to move from dev to prod.
 
