@@ -1,9 +1,25 @@
-apiVersion: serving.knative.dev/v1
-kind: Service
+# ---------------------------------------------
+# Cloud Run Service Definition (Production)
+# ---------------------------------------------
+apiVersion: serving.knative.dev/v1   # API version for Cloud Run (Knative-based service)
+kind: Service                        # Defines a Cloud Run service resource
+
 metadata:
-  name: my-service-prod  # ✅ Prod Cloud Run service
+  name: my-service-prod              # Name of the Cloud Run service for PROD environment
+                                     # This is the production-facing service
+                                     # Should be separate from dev to ensure isolation
+
+# ---------------------------------------------
+# Service Specification (Runtime Configuration)
+# ---------------------------------------------
 spec:
-  template:
+  template:                          # Template defines how each new revision is created
     spec:
       containers:
-        - image: my-app  # ✅ Same placeholder
+        - image: my-app              # Placeholder image (NOT an actual Docker image)
+                                     # This value is dynamically replaced during deployment
+                                     # by Cloud Deploy using the mapping provided in Cloud Build:
+                                     # my-app → actual image in Artifact Registry
+                                     # Example replacement during deployment:
+                                     # my-app becomes:
+                                     # us-east1-docker.pkg.dev/<project-id>/my-docker-repo/my-image:<tag>
