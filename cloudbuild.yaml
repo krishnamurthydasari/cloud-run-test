@@ -5,5 +5,9 @@ steps:
       - '-t'
       - 'us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image'
       - .
+
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+
 options:
   logging: CLOUD_LOGGING_ONLY
