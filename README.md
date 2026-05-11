@@ -64,10 +64,12 @@ Step 12: Promote to Prod
 Key Concept:
 
   Image placeholder (my-app) is replaced with actual Docker image during deployment.
+
   
   Cloud Build →
      create release →
         Cloud Deploy →  
+                 ↓   
            → Target: dev
                       ↓
                  Skaffold uses profile: dev
