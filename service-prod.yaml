@@ -14,6 +14,16 @@ metadata:
     app: my-service
     env: prod
 
+  annotations:
+    # =====================================================
+    # NETWORK / INGRESS CONTROL
+    # -----------------------------------------------------
+    # all                              → public access
+    # internal                         → only from VPC
+    # internal-and-cloud-load-balancing→ via LB + internal
+    # =====================================================
+    run.googleapis.com/ingress: all
+
 spec:
   template:
     metadata:
@@ -32,15 +42,6 @@ spec:
         # =====================================================
         autoscaling.knative.dev/minScale: "0"
         autoscaling.knative.dev/maxScale: "3"
-
-        # =====================================================
-        # NETWORK / INGRESS CONTROL
-        # -----------------------------------------------------
-        # all                              → public access
-        # internal                         → only from VPC
-        # internal-and-cloud-load-balancing→ via LB + internal
-        # =====================================================
-        run.googleapis.com/ingress: all
 
         # =====================================================
         # CPU / BILLING BEHAVIOR
