@@ -96,7 +96,7 @@ spec:
       timeoutSeconds: 300
 
       containers:
-        - image: my-app
+        - image: my-service
           # NOTE:
           # Placeholder image name. Cloud Deploy replaces this during deployment.
 
