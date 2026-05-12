@@ -12,12 +12,12 @@ spec:
     metadata:
       annotations:
         autoscaling.knative.dev/minScale: "0"       # scale to zero (cost optimized)
-        autoscaling.knative.dev/maxScale: "5"       # cap scaling to avoid runaway cost
+        autoscaling.knative.dev/maxScale: "3"       # cap scaling to avoid runaway cost
 
-        run.googleapis.com/ingress: internal-and-cloud-load-balancing   # options: all | internal | internal-and-cloud-load-balancing
+        run.googleapis.com/ingress: all             # options: all | internal | internal-and-cloud-load-balancing
 
         run.googleapis.com/cpu-throttling: "true"     # request-based billing
-        run.googleapis.com/startup-cpu-boost: "true"  # faster startup. It uses more vCPUs at startup
+        run.googleapis.com/startup-cpu-boost: "false"  # faster startup. It uses more vCPUs at startup
         run.googleapis.com/execution-environment: gen2
 
         # Uncomment if accessing private resources
