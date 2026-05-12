@@ -63,7 +63,7 @@ steps:
       - 'my-image-${SHORT_SHA}'
       - '--delivery-pipeline=my-pipeline'
       - '--region=us-central1'
-      - '--images=orquesta-ui=us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+      - '--images=my-image=us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
 
 # =====================================================
 # BUILD OPTIONS
