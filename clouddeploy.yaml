@@ -1,5 +1,5 @@
 # =====================================================
-# CLOUD DEPLOY DELIVERY PIPELINE
+# CLOUD DEPLOY DELIVERY PIPELINE  
 # -----------------------------------------------------
 # Defines how application releases move through
 # environments (dev → qa → prod)
