@@ -1,25 +1,51 @@
-# ---------------------------------------------
-# Cloud Run Service Definition (Development)
-# ---------------------------------------------
-apiVersion: serving.knative.dev/v1   # API version for Cloud Run (Knative-based service)
-kind: Service                        # Defines a Cloud Run service resource
+apiVersion: serving.knative.dev/v1                  # API version for Cloud Run (Knative-based service)
+kind: Service                                       # Defines a Cloud Run service resource
 
 metadata:
-  name: my-service-dev               # Name of the Cloud Run service for DEV environment
-                                     # This must be unique within the project & region
+  name: my-service-dev                              # Name of the Cloud Run service for DEV environment. This must be unique within the project & region
+  labels:
+    app: my-service
+    env: dev
 
-# ---------------------------------------------
-# Service Specification (Runtime Configuration)
-# ---------------------------------------------
 spec:
-  template:                          # Template defines how each revision of the service runs
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "0"       # scale to zero (cost optimized)
+        autoscaling.knative.dev/maxScale: "5"       # cap scaling to avoid runaway cost
+
+        run.googleapis.com/ingress: internal-and-cloud-load-balancing   # options: all | internal | internal-and-cloud-load-balancing
+
+        run.googleapis.com/cpu-throttling: "true"     # request-based billing
+        run.googleapis.com/startup-cpu-boost: "true"  # faster startup. It uses more vCPUs at startup
+        run.googleapis.com/execution-environment: gen2
+
+        # Uncomment if accessing private resources
+        # run.googleapis.com/vpc-access-connector: projects/PROJECT_ID/locations/REGION/connectors/CONNECTOR_NAME
+        # run.googleapis.com/vpc-access-egress: private-ranges-only
+
     spec:
+      #serviceAccountName: my-service-sa@PROJECT_ID.iam.gserviceaccount.com
+
+      containerConcurrency: 80                        # default 80; Lower concurrency → faster response per request
+      timeoutSeconds: 300                             # max request timeout (default 300, max 3600)
+
       containers:
-        - image: my-app              # Placeholder image name (NOT a real image)
-                                     # Cloud Deploy replaces this value during deployment
-                                     # using mapping from Cloud Build:
-                                     # my-app → actual Docker image (Artifact Registry)
-                                    
-                                     # Example replacement at runtime:
-                                     # my-app becomes:
-                                     # us-east1-docker.pkg.dev/<project>/repo/my-image:<tag>
+        - image: my-app                               # Placeholder image name (NOT a real image). Cloud Deploy replaces this value during deployment.
+
+          ports:
+            - containerPort: 8080                      # default port
+
+          # Default 1 vCPU and 512 MiB memory
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+
+          env:
+            - name: ENV
+              value: "dev"
+
+  traffic:
+    - latestRevision: true
+      percent: 100
