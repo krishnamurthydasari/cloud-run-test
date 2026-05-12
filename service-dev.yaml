@@ -45,15 +45,6 @@ spec:
         autoscaling.knative.dev/maxScale: "3"
 
         # =====================================================
-        # NETWORK / INGRESS CONTROL
-        # -----------------------------------------------------
-        # all                              → public access
-        # internal                         → only from VPC
-        # internal-and-cloud-load-balancing→ via LB + internal
-        # =====================================================
-        run.googleapis.com/ingress: all
-
-        # =====================================================
         # CPU / BILLING BEHAVIOR
         # -----------------------------------------------------
         # cpu-throttling:
