@@ -13,6 +13,17 @@ metadata:
   labels:
     app: my-service
     env: dev
+    
+  annotations:
+    # =====================================================
+    # NETWORK / INGRESS CONTROL
+    # -----------------------------------------------------
+    # all                              → public access
+    # internal                         → only from VPC
+    # internal-and-cloud-load-balancing→ via LB + internal
+    # =====================================================
+    run.googleapis.com/ingress: all
+    
 
 spec:
   template:
