@@ -16,6 +16,12 @@ kind: Config
 metadata:
   name: my-image   # Application/service identifier
 
+
+# REQUIRED for image substitution
+build:
+  artifacts:
+    - image: my-image
+
 # =====================================================
 # DEPLOY CONFIGURATION
 # -----------------------------------------------------
