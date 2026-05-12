@@ -14,7 +14,7 @@ apiVersion: skaffold/v4beta6
 kind: Config
 
 metadata:
-  name: my-app   # Application/service identifier
+  name: my-image   # Application/service identifier
 
 # =====================================================
 # DEPLOY CONFIGURATION
