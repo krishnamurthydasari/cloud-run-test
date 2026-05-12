@@ -1,25 +1,145 @@
-# ---------------------------------------------
-# Cloud Run Service Definition (Production)
-# ---------------------------------------------
-apiVersion: serving.knative.dev/v1   # API version for Cloud Run (Knative-based service)
-kind: Service                        # Defines a Cloud Run service resource
+# =====================================================
+# Cloud Run Service Definition (Knative-based)
+# =====================================================
+apiVersion: serving.knative.dev/v1
+kind: Service
 
 metadata:
-  name: my-service-prod              # Name of the Cloud Run service for PROD environment
-                                     # This is the production-facing service
-                                     # Should be separate from dev to ensure isolation
+  # ---------------------------------------------------
+  # Service Identification
+  # ---------------------------------------------------
+  name: my-service-prod   # Unique name per project & region
 
-# ---------------------------------------------
-# Service Specification (Runtime Configuration)
-# ---------------------------------------------
+  labels:
+    app: my-service
+    env: prod
+
 spec:
-  template:                          # Template defines how each new revision is created
+  template:
+    metadata:
+      annotations:
+
+        # =====================================================
+        # SCALING CONFIGURATION
+        # Controls how the service scales
+        # -----------------------------------------------------
+        # minScale:
+        #   0 → scale to zero (cost optimized, allows cold starts)
+        #   1+ → keeps instances warm (reduces latency)
+        #
+        # maxScale:
+        #   maximum number of instances Cloud Run can scale out to
+        # =====================================================
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "3"
+
+        # =====================================================
+        # NETWORK / INGRESS CONTROL
+        # -----------------------------------------------------
+        # all                              → public access
+        # internal                         → only from VPC
+        # internal-and-cloud-load-balancing→ via LB + internal
+        # =====================================================
+        run.googleapis.com/ingress: all
+
+        # =====================================================
+        # CPU / BILLING BEHAVIOR
+        # -----------------------------------------------------
+        # cpu-throttling:
+        #   true  → request-based billing (default, cheaper)
+        #   false → instance-based billing (always-on CPU)
+        #
+        # startup-cpu-boost:
+        #   true  → temporary extra CPU during startup (faster cold start)
+        #   false → normal startup behavior
+        #
+        # execution-environment:
+        #   gen2 → recommended modern runtime
+        # =====================================================
+        run.googleapis.com/cpu-throttling: "true"
+        run.googleapis.com/startup-cpu-boost: "false"
+        run.googleapis.com/execution-environment: gen2
+
+        # =====================================================
+        # VPC CONFIGURATION (OPTIONAL)
+        # -----------------------------------------------------
+        # Required for:
+        #   - Cloud SQL (private IP)
+        #   - Memorystore (Redis)
+        #   - internal services
+        # =====================================================
+        # run.googleapis.com/vpc-access-connector: projects/PROJECT_ID/locations/REGION/connectors/CONNECTOR_NAME
+        # run.googleapis.com/vpc-access-egress: private-ranges-only
+
     spec:
+      # =====================================================
+      # SERVICE IDENTITY (RECOMMENDED)
+      # -----------------------------------------------------
+      # Use a dedicated service account for:
+      #   - least privilege access
+      #   - accessing GCP services (DB, Pub/Sub, etc.)
+      # =====================================================
+      # serviceAccountName: my-service-sa@PROJECT_ID.iam.gserviceaccount.com
+
+      # =====================================================
+      # REQUEST HANDLING CONFIGURATION
+      # -----------------------------------------------------
+      # containerConcurrency:
+      #   max concurrent requests per instance
+      #     lower → better latency, more instances
+      #     higher → better cost efficiency
+      #
+      # timeoutSeconds:
+      #   max request duration (default 300, max 3600)
+      # =====================================================
+      containerConcurrency: 80
+      timeoutSeconds: 300
+
       containers:
-        - image: my-app              # Placeholder image (NOT an actual Docker image)
-                                     # This value is dynamically replaced during deployment
-                                     # by Cloud Deploy using the mapping provided in Cloud Build:
-                                     # my-app → actual image in Artifact Registry
-                                     # Example replacement during deployment:
-                                     # my-app becomes:
-                                     # us-east1-docker.pkg.dev/<project-id>/my-docker-repo/my-image:<tag>
+        - image: my-service
+          # NOTE:
+          # Placeholder image name. Cloud Deploy replaces this during deployment.
+
+          # =====================================================
+          # PORT CONFIGURATION
+          # -----------------------------------------------------
+          # Cloud Run expects the container to listen on $PORT
+          # Default is 8080. This field is optional but improves clarity.
+          # =====================================================
+          ports:
+            - containerPort: 8080
+
+          # =====================================================
+          # RESOURCE LIMITS
+          # -----------------------------------------------------
+          # Defaults (if omitted):
+          #   CPU    → 1 vCPU
+          #   Memory → 512Mi
+          #
+          # Adjust based on workload needs
+          # =====================================================
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+
+          # =====================================================
+          # ENVIRONMENT VARIABLES
+          # -----------------------------------------------------
+          # Used for:
+          #   - environment config (dev/stage/prod)
+          #   - feature flags
+          #   - service configuration
+          # =====================================================
+          env:
+            - name: ENV
+              value: "prod"
+
+  # =========================================================
+  # TRAFFIC ROUTING
+  # ---------------------------------------------------------
+  # Routes 100% of traffic to latest deployed revision
+  # =========================================================
+  traffic:
+    - latestRevision: true
+      percent: 100
