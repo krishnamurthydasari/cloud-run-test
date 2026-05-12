@@ -8,11 +8,11 @@ metadata:
   # ---------------------------------------------------
   # Service Identification
   # ---------------------------------------------------
-  name: my-service-dev   # Unique name per project & region
+  name: my-service-qa   # Unique name per project & region
 
   labels:
     app: my-service
-    env: dev
+    env: qa
 
 spec:
   template:
@@ -133,7 +133,7 @@ spec:
           # =====================================================
           env:
             - name: ENV
-              value: "dev"
+              value: "qa"
 
   # =========================================================
   # TRAFFIC ROUTING

@@ -1,56 +1,97 @@
-# ---------------------------------------------
-# Cloud Deploy Pipeline Definition
-# ---------------------------------------------
-apiVersion: deploy.cloud.google.com/v1   # API version for Cloud Deploy resources
-kind: DeliveryPipeline                   # Defines a deployment pipeline (flow)
-metadata:
-  name: my-pipeline                      # Unique name of the pipeline
-description: Sample pipeline             # Description of the pipeline
+# =====================================================
+# CLOUD DEPLOY DELIVERY PIPELINE
+# -----------------------------------------------------
+# Defines how application releases move through
+# environments (dev → qa → prod)
+#
+# Uses SERIAL PIPELINE:
+#   - Deploys sequentially across environments
+#   - Each stage must complete before next begins
+# =====================================================
+apiVersion: deploy.cloud.google.com/v1
+kind: DeliveryPipeline
 
-# ---------------------------------------------
-# Deployment Flow (Pipeline Stages)
-# ---------------------------------------------
-serialPipeline:                          # Deploy stages sequentially (one after another)
+metadata:
+  name: my-pipeline    # Pipeline name referenced in Cloud Build
+
+serialPipeline:
   stages:
-    - targetId: dev                      # First deploy to 'dev' environment
-    - targetId: prod                     # Then deploy to 'prod' environment
+
+    # =====================================================
+    # STAGE 1: DEV ENVIRONMENT
+    # Automatically deploys first
+    # =====================================================
+    - targetId: dev
+
+    # =====================================================
+    # STAGE 2: QA ENVIRONMENT
+    # Gated with manual approval (recommended)
+    # =====================================================
+    - targetId: qa
+
+    # =====================================================
+    # STAGE 3: PRODUCTION ENVIRONMENT
+    # -----------------------------------------------------
+    # Final deployment stage
+    # Gated with manual approval (recommended)
+    # =====================================================
+    - targetId: prod
 
 ---
-# ---------------------------------------------
-# Target Definition: DEV Environment
-# ---------------------------------------------
-apiVersion: deploy.cloud.google.com/v1   # API version
-kind: Target                             # Defines a deployment target (environment)
-metadata:
-  name: dev                              # Target name (must match targetId above)
-description: Dev environment             # Description of the environment
-
-# ---------------------------------------------
-# Cloud Run Configuration for DEV
-# ---------------------------------------------
-run:
-  # Specifies where the application will be deployed
-  # Format: projects/<project-id>/locations/<region>
-  location: projects/shadowcoo/locations/us-east1
-
----
-# ---------------------------------------------
-# Target Definition: PROD Environment
-# ---------------------------------------------
+# =====================================================
+# TARGET: DEV ENVIRONMENT
+# -----------------------------------------------------
+# Defines where the application is deployed for dev
+#
+# run.location:
+#   Cloud Run region + project where service runs
+# =====================================================
 apiVersion: deploy.cloud.google.com/v1
 kind: Target
+
 metadata:
-  name: prod                             # Target name (must match targetId above)
-description: Prod environment            # Production environment
+  name: dev
 
-# ---------------------------------------------
-# Approval Requirement (Prod Safety Gate)
-# ---------------------------------------------
-requireApproval: true                    # Forces manual approval before deployment to prod
-
-# ---------------------------------------------
-# Cloud Run Configuration for PROD
-# ---------------------------------------------
 run:
-  # Same region as dev, but logically a separate environment
-  location: projects/shadowcoo/locations/us-east1
+  location: projects/shadowcoo/locations/us-central1
+
+
+---
+# =====================================================
+# TARGET: QA ENVIRONMENT
+# requireApproval:
+#   true → requires manual approval before deployment
+#   adds protection against accidental production updates
+# =====================================================
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+
+metadata:
+  name: qa
+
+requireApproval: true
+
+run:
+  location: projects/shadowcoo/locations/us-central1
+
+
+---
+# =====================================================
+# TARGET: PRODUCTION ENVIRONMENT
+# -----------------------------------------------------
+# Final deployment destination
+#
+# requireApproval:
+#   true → requires manual approval before deployment
+#   adds protection against accidental production updates
+# =====================================================
+apiVersion: deploy.cloud.google.com/v1
+kind: Target
+
+metadata:
+  name: prod
+
+requireApproval: true
+
+run:
+  location: projects/shadowcoo/locations/us-central1
