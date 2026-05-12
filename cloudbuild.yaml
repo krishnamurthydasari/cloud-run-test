@@ -1,48 +1,76 @@
-steps:
-  # ---------------------------------------------
-  # Step 1: Build Docker Image
-  # ---------------------------------------------
-  - name: gcr.io/cloud-builders/docker   # Use Docker builder provided by GCP
-    args:
-      - build                            # Docker build command
-      - '-t'                             # Tag the image
-      # Image name + version (SHORT_SHA = commit ID)
-      - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
-      - .                                # Build context (current directory)
-  # ---------------------------------------------
-  # Step 2: Push Docker Image to Artifact Registry
-  # ---------------------------------------------
-  - name: gcr.io/cloud-builders/docker   # Use Docker CLI provided by Cloud Build
-    args:
-      - push                             # Docker push command
-      # Full image path in Artifact Registry:
-      # <region>-docker.pkg.dev/<project-id>/<repo>/<image>:<tag>
-      - 'us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+# =====================================================
+# Cloud Build Pipeline
+# -----------------------------------------------------
+# This pipeline performs:
+#   1. Build Docker image
+#   2. Push image to Artifact Registry
+#   3. Create a Cloud Deploy release
+# =====================================================
 
-  # ---------------------------------------------
-  # Step 3: Create Release in Cloud Deploy
-  # ---------------------------------------------
-  - name: gcr.io/google.com/cloudsdktool/cloud-sdk  # Use container with gcloud CLI installed
-    entrypoint: gcloud                             # Run gcloud command directly
+steps:
+
+  # =====================================================
+  # STEP 1: BUILD DOCKER IMAGE
+  # -----------------------------------------------------
+  # Builds the container image from the current directory
+  #
+  # - Uses Dockerfile in repo root (.)
+  # - Tags image with SHORT_SHA (commit-based versioning)
+  # - Stores image in Artifact Registry
+  # =====================================================
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - '-t'
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+      - .
+
+  # =====================================================
+  # STEP 2: PUSH IMAGE TO ARTIFACT REGISTRY
+  # -----------------------------------------------------
+  # Pushes the built image to Google Artifact Registry
+  #
+  # - Required before deployment
+  # - Makes image available to Cloud Run / Cloud Deploy
+  # =====================================================
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - 'us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+
+  # =====================================================
+  # STEP 3: CREATE CLOUD DEPLOY RELEASE
+  # -----------------------------------------------------
+  # Creates a new release in Cloud Deploy pipeline
+  #
+  # - Uses unique release name:
+  #     SERVICE + COMMIT_SHA + BUILD_ID
+  #
+  # - Links built image to deployment pipeline
+  # - Triggers deployment to defined targets (dev/stage/prod)
+  #
+  # Key parameters:
+  #   --delivery-pipeline → pipeline name
+  #   --region            → location of pipeline
+  #   --images            → maps image name to built artifact
+  # =====================================================
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
     args:
       - deploy
       - releases
       - create
-      # Unique release name (based on commit SHA for traceability)
-      - release-${SHORT_SHA}
-  
-      # Specify which Cloud Deploy pipeline to use
-      - '--delivery-pipeline=my-pipeline'
-  
-      # Region where Cloud Deploy pipeline is defined
-      - '--region=us-east1'
-  
-      # Map logical app name → actual container image
-      # 'my-app' must match the name used in skaffold.yaml / service.yaml
-      - '--images=my-app=us-east1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
-    
-# ---------------------------------------------
-# Logging Options
-# ---------------------------------------------
+      - 'orquesta-ui-${SHORT_SHA}-${BUILD_ID}'
+      - '--delivery-pipeline=orquesta-ui-pipeline'
+      - '--region=us-central1'
+      - '--images=orquesta-ui=us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
+
+# =====================================================
+# BUILD OPTIONS
+# -----------------------------------------------------
+# logging:
+#   CLOUD_LOGGING_ONLY → logs stored only in Cloud Logging
+#   (reduces noisy output in Cloud Build UI if needed)
+# =====================================================
 options:
-  logging: CLOUD_LOGGING_ONLY   # Send logs only to Cloud Logging (not GCS)
+  logging: CLOUD_LOGGING_ONLY
