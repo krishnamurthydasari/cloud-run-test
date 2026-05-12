@@ -44,7 +44,7 @@ steps:
   # Creates a new release in Cloud Deploy pipeline
   #
   # - Uses unique release name:
-  #     SERVICE + COMMIT_SHA + BUILD_ID
+  #     SERVICE + COMMIT_SHA
   #
   # - Links built image to deployment pipeline
   # - Triggers deployment to defined targets (dev/stage/prod)
@@ -60,7 +60,7 @@ steps:
       - deploy
       - releases
       - create
-      - 'my-image-${SHORT_SHA}-${BUILD_ID}'
+      - 'my-image-${SHORT_SHA}'
       - '--delivery-pipeline=my-pipeline'
       - '--region=us-central1'
       - '--images=orquesta-ui=us-central1-docker.pkg.dev/${PROJECT_ID}/my-docker-repo/my-image:${SHORT_SHA}'
