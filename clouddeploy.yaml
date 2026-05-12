@@ -22,12 +22,14 @@ serialPipeline:
     # Automatically deploys first
     # =====================================================
     - targetId: dev
+      profiles: ["dev"]
 
     # =====================================================
     # STAGE 2: QA ENVIRONMENT
     # Gated with manual approval (recommended)
     # =====================================================
     - targetId: qa
+      profiles: ["qa"]
 
     # =====================================================
     # STAGE 3: PRODUCTION ENVIRONMENT
@@ -36,6 +38,7 @@ serialPipeline:
     # Gated with manual approval (recommended)
     # =====================================================
     - targetId: prod
+      profiles: ["prod"]
 
 ---
 # =====================================================
@@ -55,9 +58,6 @@ metadata:
 run:
   location: projects/shadowcoo/locations/us-central1
 
-deployParameters:
-  skaffold_profile: dev
-
 ---
 # =====================================================
 # TARGET: QA ENVIRONMENT
@@ -75,9 +75,6 @@ requireApproval: true
 
 run:
   location: projects/shadowcoo/locations/us-central1
-
-deployParameters:
-  skaffold_profile: qa
 
 ---
 # =====================================================
@@ -99,6 +96,3 @@ requireApproval: true
 
 run:
   location: projects/shadowcoo/locations/us-central1
-
-deployParameters:
-  skaffold_profile: prod
